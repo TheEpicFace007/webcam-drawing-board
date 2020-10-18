@@ -29,8 +29,6 @@ int main(int argc, char** argv)
 	/* Create the window */
 	const String drawing_board = String("Tableau de note"); /* User view */
 	cv::namedWindow(drawing_board, WINDOW_NORMAL);
-	const String comptuter_drawing_board = String("Tableau de note[Vision de l'ordi]"); /* Computer view */
-	cv::namedWindow(comptuter_drawing_board, WINDOW_AUTOSIZE);
 	Mat frame;
 	Mat mask_2; // the hsv image
 	Mat mask_3;
@@ -94,7 +92,6 @@ int main(int argc, char** argv)
 		);
 		// show the capture
 		imshow(drawing_board, frame);
-		imshow(comptuter_drawing_board, lower_range);
 		imshow("frame 2", mask_3);
 	}
 	return 0;
