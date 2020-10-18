@@ -70,14 +70,14 @@ int main(int argc, char** argv)
 		cv::inRange(
 			mask_2,
 			Scalar(
-				(double)cv::getTrackbarPos("L - H", comptuter_drawing_board),
-				(double)cv::getTrackbarPos("L - S", comptuter_drawing_board),
-				(double)cv::getTrackbarPos("L - V", comptuter_drawing_board)
+				26,
+				49,
+				0
 			),
 			Scalar(
-				(double)cv::getTrackbarPos("U - H", comptuter_drawing_board),
-				(double)cv::getTrackbarPos("U - S", comptuter_drawing_board),
-				(double)cv::getTrackbarPos("U - V", comptuter_drawing_board)
+				133,
+				255,
+				255
 			),
 			lower_range
 		);
@@ -90,6 +90,7 @@ int main(int argc, char** argv)
 			mask_3,
 			COLOR_GRAY2BGR
 		);
+
 		// show the capture
 		imshow(drawing_board, frame);
 		imshow(comptuter_drawing_board, lower_range);
