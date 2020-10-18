@@ -16,6 +16,8 @@ int main(int argc, char** argv)
 	/* Set the capture setting */
 	capture.set(CAP_PROP_FRAME_HEIGHT, 720);
 	capture.set(CAP_PROP_FRAME_WIDTH, 1080);
+	capture.set(CAP_PROP_FPS, 60);
+	capture.set(CAP_PROP_SATURATION, 20);
 	if (!capture.open(0))
 	{
 		MessageBoxW(NULL, L"Érreur dans le chargement de la capture vidéo\n"
@@ -29,15 +31,6 @@ int main(int argc, char** argv)
 	cv::namedWindow(drawing_board, WINDOW_NORMAL);
 	const String comptuter_drawing_board = String("Tableau de note[Vision de l'ordi]"); /* Computer view */
 	cv::namedWindow(comptuter_drawing_board, WINDOW_AUTOSIZE);
-	/* Create the trackbars */
-	/* Lower range */
-	cv::createTrackbar("L - H", comptuter_drawing_board, 0, 255);
-	cv::createTrackbar("L - S", comptuter_drawing_board, 0, 255);
-	cv::createTrackbar("L - V", comptuter_drawing_board, 0, 255);
-	/* Upper range */
-	cv::createTrackbar("U - H", comptuter_drawing_board, 0, 255);
-	cv::createTrackbar("U - S", comptuter_drawing_board, 0, 255);
-	cv::createTrackbar("U - V", comptuter_drawing_board, 0, 255);
 	Mat frame;
 	Mat mask_2; // the hsv image
 	Mat mask_3;
