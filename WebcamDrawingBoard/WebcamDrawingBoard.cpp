@@ -69,16 +69,8 @@ int main(int argc, char** argv)
 		cv::Mat upper_range;
 		cv::inRange(
 			mask_2,
-			Scalar(
-				26,
-				49,
-				0
-			),
-			Scalar(
-				133,
-				255,
-				255
-			),
+			Scalar(26, 49, 0),
+			Scalar(133, 255, 255),
 			lower_range
 		);
 		/*
@@ -91,6 +83,22 @@ int main(int argc, char** argv)
 			COLOR_GRAY2BGR
 		);
 
+		// perform morphological operation to get rid of the noise
+		// erosion will remove the white noise while the dilation will expand it;
+		cv::erode(
+			Scalar(26, 49, 0),
+			Scalar(133, 255, 255),
+			Mat::ones(Size(5, 5), 0),
+			Point(-1, -1),
+			3
+		);
+		cv::dilate(
+			Scalar(26, 49, 0),
+			Scalar(133, 255, 255),
+			Mat::ones(Size(5, 5), 0),
+			cv::Point(-1, -1),
+			2
+		);
 		// show the capture
 		imshow(drawing_board, frame);
 		imshow(comptuter_drawing_board, lower_range);

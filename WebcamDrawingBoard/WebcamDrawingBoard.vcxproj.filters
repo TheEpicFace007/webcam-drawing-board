@@ -30,4 +30,7 @@
   <ItemGroup>
     <None Include=".gitignore" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="ColorRange.txt" />
+  </ItemGroup>
 </Project>
