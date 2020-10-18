@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
@@ -17,7 +18,7 @@ int main(int argc, char** argv)
 	capture.set(CAP_PROP_FRAME_HEIGHT, 720);
 	capture.set(CAP_PROP_FRAME_WIDTH, 1080);
 	capture.set(CAP_PROP_FPS, 60);
-	capture.set(CAP_PROP_SATURATION, 20);
+	//capture.set(CAP_PROP_SATURATION, 20);
 	if (!capture.open(0))
 	{
 		MessageBoxW(NULL, L"Érreur dans le chargement de la capture vidéo\n"
@@ -26,13 +27,17 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// this threshold is used to filter the noise to understand what a contout is
+	int noise_threshold = 500;
+
 	/* Create the window */
 	const String drawing_board = String("Tableau de note"); /* User view */
 	cv::namedWindow(drawing_board, WINDOW_NORMAL);
 	Mat frame;
 	Mat mask_2; // the hsv image
 	Mat mask_3;
-
+	for (int i = 0; i < 2; i++)
+		std::cout << std::string("---------------------------------------------------------\n");
 	while (capture.read(frame))
 	{
 		cv::flip(frame, frame, 1);
@@ -76,20 +81,36 @@ int main(int argc, char** argv)
 
 		// perform morphological operation to get rid of the noise
 		// erosion will remove the white noise while the dilation will expand it;
-		cv::erode(
+		cv::erode( // remove the white noise
 			Scalar(26, 49, 0),
 			Scalar(133, 255, 255),
 			Mat::ones(Size(5, 5), 0),
 			Point(-1, -1),
-			3
+			1
 		);
-		cv::dilate(
+		cv::dilate( // enlarge the object
 			Scalar(26, 49, 0),
 			Scalar(133, 255, 255),
 			Mat::ones(Size(5, 5), 0),
 			cv::Point(-1, -1),
-			2
+			10
 		);
+		// find the contour of the pen
+
+		std::vector<std::vector<cv::Point> > contours;
+		Mat contourOuput = mask_3.clone();
+		cvtColor(contourOuput, contourOuput, COLOR_BGR2GRAY);
+		cv::findContours(contourOuput, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+		// make sure there's a contour
+		if (!contours.empty() && contourArea(contours) > noise_threshold)
+		{
+			<std::vector<cv::Point> > temp= 
+			for (int I_1 = 0; I_1 <= contours.size(); I_1++)
+			{
+				if (contours[I_1].size() > contours[temp].size())
+					temp = I_1;
+			}
+		}
 		// show the capture
 		imshow(drawing_board, frame);
 		imshow("frame 2", mask_3);
