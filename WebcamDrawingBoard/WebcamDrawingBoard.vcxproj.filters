@@ -26,6 +26,9 @@
     <ClInclude Include="WebcamDrawingBoard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Constant.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

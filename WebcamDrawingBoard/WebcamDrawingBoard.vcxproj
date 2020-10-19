@@ -156,6 +156,7 @@
     <ClCompile Include="WebcamDrawingBoard.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Constant.h" />
     <ClInclude Include="pprint.h" />
     <ClInclude Include="WebcamDrawingBoard.h" />
   </ItemGroup>

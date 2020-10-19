@@ -6,6 +6,7 @@
 #include <thread>
 #include <Windows.h>
 #include "WebcamDrawingBoard.h"
+#include "Constant.h"
 //#include "pprint.h"
 
 using namespace cv;
@@ -28,7 +29,7 @@ int main(int argc, char** argv)
 	}
 
 	// this threshold is used to filter the noise to understand what a contout is
-	int noise_threshold = 500;
+	
 
 	/* Create the window */
 	const String drawing_board = String("Tableau de note"); /* User view */
@@ -102,14 +103,24 @@ int main(int argc, char** argv)
 		cvtColor(contourOuput, contourOuput, COLOR_BGR2GRAY);
 		cv::findContours(contourOuput, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 		// make sure there's a contour
-		if (!contours.empty() && contourArea(contours) > noise_threshold)
+
+		// contours[temp]
+		int temp = -1;
+		for (auto i = 0; i < contours.size(); i++)
 		{
-			<std::vector<cv::Point> > temp= 
-			for (int I_1 = 0; I_1 <= contours.size(); I_1++)
+			if (   contourArea(contours[i]) > temp 
+				&& contourArea(contours[i]) >= constant::noise_threshold
+				&& contourArea(contours[i]) < 1500 /*<==check if the contour is my leg */ )
 			{
-				if (contours[I_1].size() > contours[temp].size())
-					temp = I_1;
+				temp = i;
+				//std::cout << contourArea(contours[i]) << std::endl;
+
 			}
+		}
+		if (temp != -1)
+		{
+			Rect bounding_box_range = boundingRect(contours[temp]);
+			rectangle(frame, bounding_box_range, Scalar(30, 135, 30), 2, LINE_4);
 		}
 		// show the capture
 		imshow(drawing_board, frame);
