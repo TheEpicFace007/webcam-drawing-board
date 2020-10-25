@@ -153,11 +153,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Util.cpp" />
     <ClCompile Include="WebcamDrawingBoard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constant.h" />
     <ClInclude Include="pprint.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="WebcamDrawingBoard.h" />
   </ItemGroup>
   <ItemGroup>
