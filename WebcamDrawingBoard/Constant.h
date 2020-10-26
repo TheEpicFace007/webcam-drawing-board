@@ -1,5 +1,5 @@
 #pragma once
 namespace constant
 {
-	constexpr double noise_threshold{ 900 };
+	constexpr double noise_threshold{ 400 };
 }

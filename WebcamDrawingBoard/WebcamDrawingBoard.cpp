@@ -2,6 +2,7 @@
 #include "WebcamDrawingBoard.h"
 #include "Constant.h"
 #include "Util.h"
+#include "Keys.h"
 #include <Windows.h>
 #include <chrono>
 #include <iostream>
@@ -17,14 +18,21 @@
 using namespace cv;
 using std::vector;
 void nothing(int, void*) {}
-
+/// <summary>
+/// The function entrypoint
+/// </summary>
+/// <param name="argc">The argument count</param>
+/// <param name="argv">The arguments string</param>
+/// <returns>0</returns>
 int main(int argc, char** argv)
 {
     VideoCapture capture;
     /* Set the capture setting */
-    capture.set(CAP_PROP_FRAME_HEIGHT, 720);
-    capture.set(CAP_PROP_FRAME_WIDTH, 1080);
-    capture.set(CAP_PROP_FPS, 60);
+    capture.set(VideoCaptureProperties::CAP_PROP_FRAME_HEIGHT, 720);
+    capture.set(VideoCaptureProperties::CAP_PROP_FRAME_WIDTH, 1080);
+    capture.set(VideoCaptureProperties::CAP_PROP_FPS, 60);
+    capture.set(VideoCaptureProperties::CAP_PROP_BRIGHTNESS, 100);
+    capture.set(VideoCaptureProperties::CAP_PROP_AUTOFOCUS, 1);
     //capture.set(CAP_PROP_SATURATION, 20);
     if (!capture.open(0))
     {
@@ -44,41 +52,43 @@ int main(int argc, char** argv)
     Mat mask_3;
     vector<Rect> old_line_pt;
 
-    bool should_show_clear_toast = false;
+    bool is_drawing_enabled = true;
     while (capture.read(frame))
     {
         cv::flip(frame, frame, 1);
         cv::flip(frame, mask_2, 1);
         // raise a message if the user want to quit
-        switch (waitKey(5))
+        int SHOULD_QUIT;
+        switch (waitKey(1))
         {
-        case 27: // if escape is presed
+        case KeyboardKey::KEY_ESCAPE: // Escape is pressed
 
 #ifndef _DEBUG
-            const int SHOULD_QUIT = MessageBox(NULL, L"Est tu sure de vouloir quitter"
+            SHOULD_QUIT = MessageBox(NULL, L"Est tu sure de vouloir quitter"
                 L" le programme?",
                 L"Quitté le programme?",
                 MB_ICONQUESTION | MB_TOPMOST | MB_TASKMODAL | MB_YESNO);
             if (SHOULD_QUIT == IDYES) // if the answer is YES
-#endif
-
                 goto end;
-#ifndef _DEBUG
             else
                 break;
 #endif
-        case 32:
+            goto end;
+        case KeyboardKey::KEY_SPACE: // space is pressed
             old_line_pt.clear();
-            should_show_clear_toast = true;
+            break;
+        case KeyboardKey::KEY_Z: // Z is pressed
+            is_drawing_enabled = !is_drawing_enabled;
+            if (is_drawing_enabled)
+                std::cout << "Drawing enabled!\n";
+            else
+                std::cout << "Drawing disabled\n";
             break;
         }
 
-        if (should_show_clear_toast)
-            cv::putText(frame, "Removed paint from canvas", Point(0, 0), FONT_HERSHEY_SCRIPT_SIMPLEX, 12, rgb2bgr(33, 143, 222, 0.5));
-
 
         // convert the bgr image to hsv
-        cvtColor(frame, mask_2, COLOR_BGR2HSV);
+        cv::cvtColor(frame, mask_2, COLOR_BGR2HSV);
         // set the capture setting before showing the capture
         // filter the image and get the binary mask which represent the target color
         cv::Mat lower_range;
@@ -104,18 +114,18 @@ int main(int argc, char** argv)
             Scalar(133, 255, 255),
             Mat::ones(Size(5, 5), 0),
             Point(-1, -1),
-            5);
+            100);
         cv::dilate( // enlarge the object
             Scalar(26, 49, 0),
             Scalar(133, 255, 255),
             Mat::ones(Size(5, 5), 0),
             cv::Point(-1, -1),
-            10);
+            2);
         // find the contour of the pen
 
         std::vector<std::vector<cv::Point>> contours;
         Mat contourOuput = mask_3.clone();
-        cvtColor(contourOuput, contourOuput, COLOR_BGR2GRAY);
+        cv::cvtColor(contourOuput, contourOuput, COLOR_BGR2GRAY);
         cv::findContours(contourOuput, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
         // make sure there's a contour
 
@@ -123,12 +133,12 @@ int main(int argc, char** argv)
         int temp = -1;
         for (auto i = 0; i < contours.size(); i++)
         {
-            if (contourArea(contours[i]) > temp
-                && contourArea(contours[i]) >= constant::noise_threshold
-                && contourArea(contours[i]) < 1500 /*<==check if the contour is actually a pen*/)
+            if (contourArea(contours[i]) > temp && contourArea(contours[i]) >= constant::noise_threshold
+                && contourArea(contours[i]) < 1000)
+
             {
                 temp = i;
-                //std::cout << contourArea(contours[i]) << "\n";
+                std::cout << contourArea(contours[i]) << "\n";
                 //std::cout << contourArea(contours[i]) << std::endl;
             }
         }
@@ -138,29 +148,25 @@ int main(int argc, char** argv)
             //  add a bit of ink
             Rect bounding_box_range = boundingRect(contours[temp]);
             old_line_pt.push_back(bounding_box_range);
-            std::cout << old_line_pt.size() << "\n";
             rectangle(frame, bounding_box_range, rgb2bgr(252, 211, 3), 2, LINE_4);
         }
-
-        // add all ink to the frame
-        for (size_t i = 0; i < old_line_pt.size(); i++)
-        {
-            std::cout << "TL: " << old_line_pt[i].br() << "\n";
-            std::cout << "BR: " << old_line_pt[i].br() << "\n",
+        if (is_drawing_enabled)
+            // add all ink to the frame
+            for (size_t i = 0; i < old_line_pt.size(); i++)
+            {
                 line(
                     frame,
                     old_line_pt[i].tl(),
                     old_line_pt[i].br(),
                     Scalar(255, 0, 0),
-                    4,
-                    LINE_AA);
+                    1,
+                    LineTypes::LINE_4);
 
-        }
+
+            }
         // show the capture
-        imshow(drawing_board, frame);
-        imshow("frame 2", mask_3);
-#ifdef SHOW_COMPUTER_VIEW
-#endif
+        cv::imshow(drawing_board, frame);
+        cv::imshow("frame 2", mask_3);
     }
 end:
 #ifndef _DEBUG
